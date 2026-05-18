@@ -1,0 +1,8 @@
+tensorflow
+mlflow
+dagshub
+numpy
+pandas
+matplotlib
+scikit-learn
+pillow
