@@ -1,23 +1,24 @@
-# Intel Image Classification with MLflow and DagsHub
+# MLFlow Image Classification
 
-## Project Overview
+Deep Learning image classification project using TensorFlow, MLflow, and DagsHub for experiment tracking and model management.
 
-Project ini merupakan implementasi machine learning lifecycle menggunakan:
+---
 
-- TensorFlow
-- MLflow
-- DagsHub
-- CNN (Convolutional Neural Network)
+# Project Overview
 
-Tujuan utama project:
+This project implements an image classification model using Convolutional Neural Network (CNN) architecture with TensorFlow/Keras.
 
-- melakukan training image classification,
-- melakukan experiment tracking,
-- menyimpan metrics,
-- menyimpan artifact,
-- melakukan online experiment tracking menggunakan DagsHub.
+The project also integrates:
 
-Dataset yang digunakan merupakan dataset preprocessing hasil Kriteria 1.
+- MLflow Tracking
+- MLflow Artifact Logging
+- Hyperparameter Tuning
+- DagsHub Online Tracking
+- Manual Logging for Advanced Criteria
+
+Dataset used:
+
+- Intel Image Classification Dataset
 
 ---
 
@@ -26,241 +27,132 @@ Dataset yang digunakan merupakan dataset preprocessing hasil Kriteria 1.
 ```text
 Membangun_model/
 │
-├── modelling.py
-├── modelling_tuning.py
 ├── intel_image_preprocessing/
 │   ├── train/
 │   ├── val/
 │   └── test/
 │
-├── cnn_model.keras
-├── training_history.png
-├── confusion_matrix.png
-├── classification_report.txt
-├── model_summary.txt
+├── model/
+│   ├── MLmodel
+│   └── model.keras
 │
-├── screenshot_dashboard.jpg
-├── screenshot_artifak.jpg
+├── modelling.py
+├── modelling_tuning.py
+│
+├── classification_report.txt
+├── confusion_matrix.png
+├── training_history.png
+│
+├── screenshoot_dashboard.jpeg
+├── screenshoot_model_artifak.jpeg
+├── screenshoot_dashboard_dagshub.jpeg
+├── screenshoot_model_artifak_dagshub.jpeg
 │
 ├── requirements.txt
-└── DagsHub.txt
-```
-
----
-
-# Dataset Information
-
-Dataset:
-
-- Intel Image Classification Dataset
-
-Class:
-
-- buildings
-- forest
-- glacier
-- mountain
-- sea
-- street
-
-Dataset telah melalui:
-
-- preprocessing,
-- splitting,
-- normalization,
-- optimization.
-
----
-
-# Machine Learning Workflow
-
-```mermaid
-graph TD
-
-A[Dataset Preprocessing] --> B[Load Dataset]
-
-B --> C[Normalization]
-
-C --> D[Dataset Optimization]
-
-D --> E[Build CNN Model]
-
-E --> F[Model Training]
-
-F --> G[Model Evaluation]
-
-G --> H[MLflow Logging]
-
-H --> I[DagsHub Online Tracking]
-
-I --> J[Artifact Storage]
-```
-
----
-
-# CNN Architecture Flow
-
-```mermaid
-graph TD
-
-A[Input Image 150x150x3]
-
-A --> B[Conv2D 32 Filters]
-
-B --> C[MaxPooling2D]
-
-C --> D[Conv2D 64 Filters]
-
-D --> E[MaxPooling2D]
-
-E --> F[Flatten Layer]
-
-F --> G[Dense 128]
-
-G --> H[Dropout 0.3]
-
-H --> I[Dense Softmax 6 Class]
-
-I --> J[Prediction Output]
-```
-
----
-
-# MLflow Tracking Flow
-
-```mermaid
-graph TD
-
-A[TensorFlow Training]
-
-A --> B[MLflow Tracking]
-
-B --> C[Log Parameters]
-
-B --> D[Log Metrics]
-
-B --> E[Log Artifacts]
-
-B --> F[Log Model]
-
-F --> G[DagsHub Online Tracking]
-```
-
----
-
-# modelling.py Workflow
-
-```mermaid
-graph TD
-
-A[Load Dataset]
-
-A --> B[Build CNN]
-
-B --> C[Compile Model]
-
-C --> D[Train Model]
-
-D --> E[Evaluate Model]
-
-E --> F[MLflow Autolog]
-```
-
----
-
-# modelling_tuning.py Workflow
-
-```mermaid
-graph TD
-
-A[Initialize DagsHub]
-
-A --> B[Load Dataset]
-
-B --> C[Normalize Dataset]
-
-C --> D[Dataset Optimization]
-
-D --> E[Set Hyperparameter]
-
-E --> F[Build CNN]
-
-F --> G[Training Model]
-
-G --> H[Evaluation]
-
-H --> I[Manual Logging]
-
-I --> J[Artifact Logging]
-
-J --> K[Save Model]
-
-K --> L[DagsHub Tracking]
+├── DagsHub.txt
+└── README.md
 ```
 
 ---
 
 # Technologies Used
 
-| Technology   | Description                |
-| ------------ | -------------------------- |
-| TensorFlow   | Deep Learning Framework    |
-| MLflow       | Experiment Tracking        |
-| DagsHub      | Online Experiment Tracking |
-| Matplotlib   | Visualization              |
-| Scikit-Learn | Evaluation Metrics         |
-| NumPy        | Numerical Computation      |
+| Technology       | Description               |
+| ---------------- | ------------------------- |
+| Python           | Main programming language |
+| TensorFlow/Keras | Deep learning framework   |
+| MLflow           | Experiment tracking       |
+| DagsHub          | Online MLflow tracking    |
+| Matplotlib       | Visualization             |
+| Scikit-Learn     | Evaluation metrics        |
 
 ---
 
-# Hyperparameter Configuration
+# Model Architecture
 
-| Hyperparameter | Value   |
-| -------------- | ------- |
-| Image Size     | 150x150 |
-| Batch Size     | 32      |
-| Learning Rate  | 0.001   |
-| Dropout Rate   | 0.3     |
-| Epoch          | 5       |
+The model uses CNN architecture with:
 
----
-
-# Metrics Logged
-
-MLflow dan DagsHub menyimpan:
-
-- accuracy
-- val_accuracy
-- loss
-- val_loss
-- test_accuracy
-- test_loss
+- Conv2D
+- MaxPooling2D
+- Dropout
+- Dense Layer
+- Softmax Output
 
 ---
 
-# Artifacts Logged
+# MLflow Integration
 
-Project ini menyimpan artifact berikut:
+This project implements:
 
-- training_history.png
+- MLflow autologging in `modelling.py`
+- Manual logging in `modelling_tuning.py`
+- Hyperparameter tuning
+- Artifact logging
+- Online experiment tracking with DagsHub
+
+---
+
+# MLflow Model Artifact
+
+MLflow automatically stores model artifacts in the following structure:
+
+```text
+model/
+├── MLmodel
+├── conda.yaml
+├── python_env.yaml
+├── requirements.txt
+└── data/
+    └── model.keras
+```
+
+These artifacts ensure model reproducibility and environment consistency.
+
+---
+
+# Additional Logged Artifacts
+
+The project logs additional artifacts including:
+
 - confusion_matrix.png
 - classification_report.txt
+- training_history.png
 - model_summary.txt
-- cnn_model.keras
 
 ---
 
-# DagsHub Repository
+# Hyperparameters
 
-Repository DagsHub:
-
-https://dagshub.com/arif76440/MLFlow-Image-Classification
+| Parameter     | Value |
+| ------------- | ----- |
+| Epochs        | 5     |
+| Batch Size    | 32    |
+| Learning Rate | 0.001 |
+| Dropout Rate  | 0.3   |
 
 ---
 
-# How to Run Project
+# Submission Screenshots
 
-## 1. Install Dependencies
+This project includes the following screenshots:
+
+- screenshoot_dashboard.jpeg
+- screenshoot_model_artifak.jpeg
+- screenshoot_dashboard_dagshub.jpeg
+- screenshoot_model_artifak_dagshub.jpeg
+
+These screenshots demonstrate:
+
+- MLflow tracking
+- Metrics logging
+- Artifact storage
+- DagsHub online synchronization
+
+---
+
+# Running the Project
+
+## Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -268,37 +160,27 @@ pip install -r requirements.txt
 
 ---
 
-## 2. Login DagsHub
+## Run MLflow Server
 
 ```bash
-dagshub login
+mlflow server \
+--backend-store-uri sqlite:///mlflow.db \
+--default-artifact-root ./mlartifacts \
+--host 127.0.0.1 \
+--port 5000
 ```
 
 ---
 
-## 3. Run MLflow UI
+## Run Training
 
-```bash
-mlflow ui
-```
-
-Open browser:
-
-```text
-http://127.0.0.1:5000
-```
-
----
-
-## 4. Run Training
-
-### modelling.py
+Basic:
 
 ```bash
 python modelling.py
 ```
 
-### modelling_tuning.py
+Advanced/Tuning:
 
 ```bash
 python modelling_tuning.py
@@ -308,41 +190,30 @@ python modelling_tuning.py
 
 # MLflow Dashboard
 
-MLflow dashboard digunakan untuk:
+Open:
 
-- melihat metrics,
-- melihat parameters,
-- melihat artifact,
-- melihat experiment tracking.
+```text
+http://127.0.0.1:5000
+```
 
 ---
 
-# DagsHub Integration
+# DagsHub Repository
 
-DagsHub digunakan untuk:
+DagsHub tracking URL is available inside:
 
-- online experiment tracking,
-- menyimpan experiment history,
-- monitoring metrics,
-- menyimpan artifact online.
+```text
+DagsHub.txt
+```
 
 ---
 
 # Evaluation Result
 
-Model berhasil melakukan:
-
-- image classification,
-- experiment tracking,
-- artifact logging,
-- online monitoring menggunakan DagsHub.
+The model successfully performs image classification with good validation accuracy and tracked experiment history using MLflow and DagsHub.
 
 ---
 
 # Author
 
-Nama:
 Muh Arifandi
-
-Project:
-Machine Learning Lifecycle with MLflow and DagsHub

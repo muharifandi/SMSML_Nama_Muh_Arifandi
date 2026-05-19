@@ -2,20 +2,19 @@
 # 1. IMPORT LIBRARY
 # ============================================================
 
-import tensorflow as tf
-
+import os
+import dagshub
 import mlflow
 import mlflow.tensorflow
 
-import dagshub
-
+import tensorflow as tf
 import numpy as np
-
 import matplotlib.pyplot as plt
 
 from sklearn.metrics import (
     confusion_matrix,
-    classification_report
+    classification_report,
+    ConfusionMatrixDisplay
 )
 
 from tensorflow.keras.models import Sequential
@@ -32,8 +31,6 @@ from tensorflow.keras.layers import (
 from tensorflow.keras.utils import (
     image_dataset_from_directory
 )
-
-
 # ============================================================
 # 2. INISIALISASI DAGSHUB
 # ============================================================
@@ -46,7 +43,7 @@ dagshub.init(
 
 
 # ============================================================
-# 3. SET EXPERIMENT MLFLOW
+# 3. SET EXPERIMENT
 # ============================================================
 
 mlflow.set_experiment(
@@ -55,14 +52,7 @@ mlflow.set_experiment(
 
 
 # ============================================================
-# 4. AKTIFKAN MLFLOW AUTOLOG
-# ============================================================
-
-mlflow.tensorflow.autolog()
-
-
-# ============================================================
-# 5. KONFIGURASI DATASET
+# 4. KONFIGURASI DATASET
 # ============================================================
 
 DATASET_DIR = "intel_image_preprocessing"
@@ -75,7 +65,7 @@ AUTOTUNE = tf.data.AUTOTUNE
 
 
 # ============================================================
-# 6. LOAD DATASET
+# 5. LOAD DATASET
 # ============================================================
 
 train_dataset = image_dataset_from_directory(
@@ -99,7 +89,14 @@ test_dataset = image_dataset_from_directory(
 
 
 # ============================================================
-# 7. NORMALISASI DATASET
+# 6. CLASS NAMES
+# ============================================================
+
+class_names = train_dataset.class_names
+
+
+# ============================================================
+# 7. NORMALISASI
 # ============================================================
 
 normalization_layer = tf.keras.layers.Rescaling(
@@ -129,7 +126,7 @@ test_dataset = test_dataset.map(
 
 
 # ============================================================
-# 8. DATASET OPTIMIZATION
+# 8. OPTIMASI DATASET
 # ============================================================
 
 train_dataset = train_dataset.prefetch(
@@ -157,13 +154,13 @@ EPOCHS = 5
 
 
 # ============================================================
-# 10. MEMULAI RUN MLFLOW
+# 10. START RUN
 # ============================================================
 
 with mlflow.start_run():
 
     # ========================================================
-    # 11. MANUAL PARAMETER LOGGING
+    # 11. LOG PARAMETER
     # ========================================================
 
     mlflow.log_param(
@@ -188,7 +185,7 @@ with mlflow.start_run():
 
 
     # ========================================================
-    # 12. MEMBANGUN MODEL CNN
+    # 12. MODEL CNN
     # ========================================================
 
     model = Sequential([
@@ -232,7 +229,7 @@ with mlflow.start_run():
 
 
     # ========================================================
-    # 13. SAVE MODEL SUMMARY
+    # 13. MODEL SUMMARY
     # ========================================================
 
     with open(
@@ -245,18 +242,13 @@ with mlflow.start_run():
             file.write(x + "\n")
         )
 
-
-    # ========================================================
-    # 14. LOG MODEL SUMMARY
-    # ========================================================
-
     mlflow.log_artifact(
         "model_summary.txt"
     )
 
 
     # ========================================================
-    # 15. COMPILE MODEL
+    # 14. COMPILE MODEL
     # ========================================================
 
     model.compile(
@@ -271,7 +263,7 @@ with mlflow.start_run():
 
 
     # ========================================================
-    # 16. TRAINING MODEL
+    # 15. TRAIN MODEL
     # ========================================================
 
     history = model.fit(
@@ -282,7 +274,7 @@ with mlflow.start_run():
 
 
     # ========================================================
-    # 17. EVALUASI MODEL
+    # 16. EVALUASI
     # ========================================================
 
     test_loss, test_accuracy = model.evaluate(
@@ -290,14 +282,8 @@ with mlflow.start_run():
     )
 
 
-    print(
-        "Test Accuracy :",
-        test_accuracy
-    )
-
-
     # ========================================================
-    # 18. MANUAL METRIC LOGGING
+    # 17. LOG METRIC
     # ========================================================
 
     mlflow.log_metric(
@@ -312,7 +298,7 @@ with mlflow.start_run():
 
 
     # ========================================================
-    # 19. VISUALISASI TRAINING HISTORY
+    # 18. TRAINING HISTORY
     # ========================================================
 
     plt.figure(figsize=(8,6))
@@ -341,18 +327,13 @@ with mlflow.start_run():
 
     plt.close()
 
-
-    # ========================================================
-    # 20. LOG TRAINING HISTORY
-    # ========================================================
-
     mlflow.log_artifact(
         "training_history.png"
     )
 
 
     # ========================================================
-    # 21. PREDIKSI MODEL
+    # 19. PREDIKSI
     # ========================================================
 
     y_true = np.concatenate([
@@ -366,7 +347,7 @@ with mlflow.start_run():
 
 
     # ========================================================
-    # 22. CONFUSION MATRIX
+    # 20. CONFUSION MATRIX
     # ========================================================
 
     cm = confusion_matrix(
@@ -374,16 +355,14 @@ with mlflow.start_run():
         y_pred
     )
 
+    fig, ax = plt.subplots(figsize=(8,8))
 
-    # ========================================================
-    # 23. SAVE CONFUSION MATRIX
-    # ========================================================
+    disp = ConfusionMatrixDisplay(
+        confusion_matrix=cm,
+        display_labels=class_names
+    )
 
-    plt.figure(figsize=(8,6))
-
-    plt.imshow(cm)
-
-    plt.colorbar()
+    disp.plot(ax=ax)
 
     plt.title("Confusion Matrix")
 
@@ -393,36 +372,27 @@ with mlflow.start_run():
 
     plt.close()
 
-
-    # ========================================================
-    # 24. LOG CONFUSION MATRIX
-    # ========================================================
-
     mlflow.log_artifact(
         "confusion_matrix.png"
     )
 
 
     # ========================================================
-    # 25. CLASSIFICATION REPORT
+    # 21. CLASSIFICATION REPORT
     # ========================================================
 
     report = classification_report(
         y_true,
-        y_pred
+        y_pred,
+        target_names=class_names
     )
 
     with open(
         "classification_report.txt",
         "w"
-    ) as file:
+    ) as f:
 
-        file.write(report)
-
-
-    # ========================================================
-    # 26. LOG CLASSIFICATION REPORT
-    # ========================================================
+        f.write(report)
 
     mlflow.log_artifact(
         "classification_report.txt"
@@ -430,22 +400,44 @@ with mlflow.start_run():
 
 
     # ========================================================
-    # 27. SAVE MODEL KE MLFLOW
+    # 22. SAVE MODEL
+    # ========================================================
+
+    os.makedirs("model", exist_ok=True)
+
+    model.save("model/model.keras")
+
+
+    # ========================================================
+    # 23. FILE TAMBAHAN MODEL
+    # ========================================================
+
+    with open("model/MLmodel", "w") as f:
+        f.write("TensorFlow CNN Model")
+
+
+    # ========================================================
+    # 24. LOG MODEL ARTIFACT
+    # ========================================================
+
+    mlflow.log_artifact("model/model.keras")
+
+    mlflow.log_artifact("model/MLmodel")
+
+    # ========================================================
+    # 25. LOG MODEL KE MLFLOW
     # ========================================================
 
     mlflow.tensorflow.log_model(
         model,
-        "cnn_model"
+        artifact_path="model"
     )
 
-
-    # ========================================================
-    # 28. SAVE MODEL LOKAL
-    # ========================================================
-
-    model.save(
-        "cnn_model.keras"
-    )
+    # Simpan run_id untuk keperluan CI
+    run_id = mlflow.active_run().info.run_id
+    with open("run_id.txt", "w") as f:
+        f.write(run_id)
+    print(f"Run ID: {run_id}")
 
 
 print(

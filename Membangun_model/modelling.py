@@ -2,6 +2,7 @@
 # 1. IMPORT LIBRARY
 # ============================================================
 
+import os
 import tensorflow as tf
 
 import mlflow
@@ -24,12 +25,12 @@ from tensorflow.keras.utils import (
 
 
 # ============================================================
-# 2. SET MLFLOW TRACKING URI
+# 2. SET TRACKING URI & EXPERIMENT
 # ============================================================
 
-mlflow.set_tracking_uri(
-    "http://127.0.0.1:5000"
-)
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+
+mlflow.set_experiment("Intel_Image_Classification")
 
 
 # ============================================================
@@ -102,7 +103,7 @@ test_dataset = test_dataset.map(
 
 
 # ============================================================
-# 6. DATASET OPTIMIZATION
+# 6. OPTIMASI DATASET
 # ============================================================
 
 train_dataset = train_dataset.prefetch(
@@ -161,14 +162,7 @@ model = Sequential([
 
 
 # ============================================================
-# 8. MENAMPILKAN ARSITEKTUR MODEL
-# ============================================================
-
-model.summary()
-
-
-# ============================================================
-# 9. COMPILE MODEL
+# 8. COMPILE MODEL
 # ============================================================
 
 model.compile(
@@ -179,14 +173,14 @@ model.compile(
 
 
 # ============================================================
-# 10. AKTIFKAN MLFLOW AUTOLOG
+# 9. AKTIFKAN AUTOLOG
 # ============================================================
 
 mlflow.tensorflow.autolog()
 
 
 # ============================================================
-# 11. TRAINING MODEL
+# 10. TRAINING MODEL
 # ============================================================
 
 with mlflow.start_run():
@@ -199,22 +193,18 @@ with mlflow.start_run():
 
 
     # ========================================================
-    # 12. EVALUASI MODEL
+    # 11. EVALUASI MODEL
     # ========================================================
 
     test_loss, test_accuracy = model.evaluate(
         test_dataset
     )
 
-
-    print(
-        "Test Accuracy :",
-        test_accuracy
-    )
+    print("Test Accuracy :", test_accuracy)
 
 
     # ========================================================
-    # 13. MANUAL LOGGING
+    # 12. LOG METRIC TAMBAHAN
     # ========================================================
 
     mlflow.log_metric(
@@ -229,12 +219,14 @@ with mlflow.start_run():
 
 
     # ========================================================
-    # 14. SAVE MODEL
+    # 13. LOG MODEL
+    # (otomatis buat folder model berisi MLmodel,
+    #  conda.yaml, python_env.yaml, requirements.txt)
     # ========================================================
 
     mlflow.tensorflow.log_model(
         model,
-        "cnn_model"
+        artifact_path="model"
     )
 
 
